@@ -2,7 +2,7 @@
 
 
 # Set this to your root directory
-ROOT_DIR="/Users/lyn/Downloads/data"
+ROOT_DIR="/Users/lyn/Documents/research/BH_N25_Case2/6_10"
 OUTPUT_DIR="$ROOT_DIR/Output"
 SPIN_DIR="$ROOT_DIR/Spin"
 generate_spin=y
@@ -12,6 +12,7 @@ mkdir -p "$OUTPUT_DIR"
 
 #---------------Size & Position---------------#
 # Run the Python script
+rm -f merger_events.txt
 python find_BH_mergers.py "$ROOT_DIR"
 
 # Define input and output files

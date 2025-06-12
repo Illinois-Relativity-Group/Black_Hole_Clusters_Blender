@@ -66,14 +66,17 @@ def fill_zeros(csv_file, output_file):
     print(f"Step 2 complete: Zero-filled data saved to {output_file}")
 
 # ========== STEP 3: SET SPINS TO ZERO AFTER MERGER EVENTS ==========
+
 def modify_csv_from_mergers(file_path, merger_file):
     df = pd.read_csv(file_path)
 
     if 'time' not in df.columns:
-        raise ValueError("The CSV file must contain a 'time' column.")
+        raise ValueError("Error: The CSV file must contain a 'time' column.")
 
     if not os.path.exists(merger_file):
         raise FileNotFoundError(f"{merger_file} not found.")
+
+    prefixes = ['spin', 'spinx', 'spiny', 'spinz']
 
     with open(merger_file, "r") as f:
         for line in f:
@@ -82,15 +85,27 @@ def modify_csv_from_mergers(file_path, merger_file):
                 continue
             idx1, idx2, t = int(parts[0]), int(parts[1]), float(parts[2])
 
-            for idx in [idx1, idx2]:
-                col_name = f"spin{idx}"
-                if col_name in df.columns:
-                    df.loc[df["time"] > t, col_name] = 0
-                else:
-                    print(f"Warning: Column {col_name} not found in CSV.")
+            for idx in (idx1, idx2):
+                cols = [f"{p}{idx}" for p in prefixes]
+                existing = [c for c in cols if c in df.columns]
+                if not existing:
+                    print(f"[WARN] No spin columns found for index {idx}")
+                    continue
+
+                # Count how many non-zero values we'd be zeroing out
+                mask = df['time'] > t
+                before_counts = {c: int((df.loc[mask, c] != 0).sum()) for c in existing}
+
+                # Now zero them
+                df.loc[mask, existing] = 0
+
+                # Report
+                #print(f"[DEBUG] At time > {t}, zeroed columns {existing} for particle {idx}.")
+                #for c, cnt in before_counts.items():
+                #    print(f"        → Column '{c}' had {cnt} non-zero entries set to zero.")
 
     df.to_csv(file_path, index=False)
-    print(f"Step 3 complete: Spins updated based on merger events from {merger_file}")
+    print(f"Step 3 complete: all extra spin got removed")
 
 
 # ========== MAIN WORKFLOW ==========

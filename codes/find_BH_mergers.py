@@ -78,7 +78,7 @@ def find_mergers(puncture_data,puncture_mass):
               formation_times.append(t)
               absorbed_times.append(np.inf)
               print("{:d} + {:d} --> {:d} at time {:.2f}".format(i+1,j+1,new_BH_num+1,t))
-              with open("merger_events.txt", "w") as f:
+              with open("merger_events.txt", "a") as f:
                 f.write(f"{i+1},{j+1},{t:.2f}\n")
               group_centre = np.zeros(3)
               group_centre = (BH_masses[i]*centeri + BH_masses[j]*centerj)/BH_masses[new_BH_num]
